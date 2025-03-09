@@ -1,0 +1,6 @@
+0 Full_bottle_clear
+1 Full_bottle_useless
+2 Bottom_clear
+3 Bottom_useless
+4 top_clear
+5 top_useless

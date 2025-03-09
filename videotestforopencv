@@ -1,0 +1,68 @@
+import cv2
+import numpy as np
+from keras.models import load_model
+from PIL import Image, ImageOps
+from moviepy.editor import VideoFileClip
+import os
+
+# Load the model
+model = load_model("C:/Users/hp/Desktop/Aditya/pro files/teachable machine/keras_model.h5", compile=False)
+
+# Load the labels
+class_names = open("C:/Users/hp/Desktop/Aditya/pro files/teachable machine/labels.txt", "r").readlines()
+
+# Path to the original MP4 file
+video_path = "C:/Users/hp/Desktop/Aditya/pro files/teachable machine/PS2 - Made with Clipchamp (1).mp4"
+converted_video_path = video_path.replace(".mp4", ".avi")
+
+# Convert MP4 to AVI if needed
+if not os.path.exists(converted_video_path):  # Convert only if AVI doesn't exist
+    print("Converting MP4 to AVI...")
+    clip = VideoFileClip(video_path)
+    clip.write_videofile(converted_video_path, codec="rawvideo")
+    print("Conversion complete!")
+
+# Open the converted AVI file
+cap = cv2.VideoCapture(converted_video_path)
+
+if not cap.isOpened():
+    print("❌ Error: Could not open video file.")
+    exit()
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Resize frame for model input
+    size = (224, 224)
+    image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+
+    # Convert image to array and normalize
+    image_array = np.asarray(image)
+    normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
+    data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+    data[0] = normalized_image_array
+
+    # Make prediction
+    prediction = model.predict(data)
+    index = np.argmax(prediction)
+    class_name = class_names[index].strip()
+    confidence_score = prediction[0][index]
+
+    # Display class & confidence score on video
+    label = f"{class_name}: {confidence_score:.2f}"
+    cv2.putText(frame, label, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+    # Show video with annotations
+    cv2.imshow("Real-time Classification", frame)
+
+    # Exit when 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release resources
+cap.release()
+cv2.destroyAllWindows()
+

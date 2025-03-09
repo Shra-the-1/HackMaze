@@ -1,0 +1,2 @@
+0 defect
+1 intact
