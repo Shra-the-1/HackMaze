@@ -32,8 +32,7 @@ Deployment: Edge-based processing on Raspberry Pi
 ✅ Cropping complexity → Predefined cropping parameters for each angle.
 
 🤝 Team
-Your Name
-Shrawan Tibarewal
+Shrawan Tibarewal (ME)
 Aditya Vikram Singh
 Sourav Jha (Lead)
 Kushagara Kumar Arora
